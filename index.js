@@ -5,11 +5,17 @@ const io = require("socket.io")(process.env.PORT || 8900, {
   },
 });
 
+//Senders
 let users = [];
 
-const addUser = (userId, socketId) => {
-  !users.some((user) => user.userId === userId) &&
-    users.push({ userId, socketId });
+
+const addUser = (newUser, socketId) => {
+  console.log('list users ONLINE: ', users);
+  !users.some((user) => user.id === newUser.id) &&
+    users.push({ ...newUser, socketId });
+
+
+    
 };
 
 const removeUser = (socketId) => {
@@ -17,7 +23,7 @@ const removeUser = (socketId) => {
 };
 
 const getUser = (userId) => {
-  return users.find((user) => user.userId === userId);
+  return users.find((user) => user.id === userId);
 };
 
 io.on("connection", (socket) => {
@@ -25,17 +31,18 @@ io.on("connection", (socket) => {
   console.log("a user connected.");
 
   //take userId and socketId from user
-  socket.on("addUser", (userId) => {
-    addUser(userId, socket.id);
+  socket.on("addUser", (newUser) => {
+    addUser(newUser, socket.id);
     io.emit("getUsers", users);
   });
 
   //send and get message
-  socket.on("sendMessage", ({ senderId, receiverId, text }) => {
+  socket.on("sendMessage", ({ sender, receiverId, message }) => {
     const user = getUser(receiverId);
-    io.to(user.socketId).emit("getMessage", {
-      senderId,
-      text,
+    console.log("Tingg",user);
+    io.to(user?.socketId).emit("getMessage", {
+      sender,
+      message,
     });
   });
 
