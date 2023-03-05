@@ -1,7 +1,7 @@
 require('dotenv').config()
 const io = require("socket.io")(process.env.PORT || 8900, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: `${process.env.BASE_URL}`,
   },
 });
 
@@ -11,11 +11,8 @@ let users = [];
 
 const addUser = (newUser, socketId) => {
   console.log('list users ONLINE: ', users);
-  !users.some((user) => user.id === newUser.id) &&
+  !users.some((user) => user.id === newUser?.id) &&
     users.push({ ...newUser, socketId });
-
-
-    
 };
 
 const removeUser = (socketId) => {
